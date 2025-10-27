@@ -1,0 +1,187 @@
+# src/main/resources/item-counters.yaml
+threats:
+  spell_spammer:
+    items:
+      - { name: "Magic Stick", reason: "Frequent spells charge it quickly." }
+      - { name: "Magic Wand", reason: "Upgraded stick for better burst sustain." }
+      - { name: "Infused Raindrops", reason: "Mitigates early magic nukes." }
+      - { name: "Hood of Defiance", reason: "Sustained magic harassment in lane." }
+
+  heavy_magic:
+    items:
+      - { name: "Hood of Defiance", reason: "High magic damage mitigation." }
+      - { name: "Pipe of Insight", reason: "Team barrier vs magic bursts." }
+      - { name: "Cloak", reason: "Cheap magic resist early." }
+
+  burst_magic:
+    items:
+      - { name: "Infused Raindrops", reason: "Efficient vs burst nukes." }
+      - { name: "Hood of Defiance", reason: "Reduces big magic spikes." }
+      - { name: "Glimmer Cape", reason: "Save tool vs targeted nukes." }
+
+  right_click_bully:
+    items:
+      - { name: "Ring of Protection", reason: "Cheap armor vs early harass." }
+      - { name: "Buckler", reason: "Early armor aura for lane." }
+      - { name: "Vanguard", reason: "Blocks chip damage from right-clicks." }
+      - { name: "Phase Boots", reason: "Armor + mobility to disengage." }
+
+  armor_reduction:
+    items:
+      - { name: "Buckler", reason: "Offset armor loss in trades." }
+      - { name: "Assault Cuirass", reason: "Team armor vs minus-armor strats." }
+      - { name: "Mech/Guardian Greaves", reason: "Sustain against armor shred." }
+
+  lifesteal_sustain:
+    items:
+      - { name: "Spirit Vessel", reason: "Reduce lifesteal and regen." }
+      - { name: "Ancient Javelin (upgrade)", reason: "Higher DPS through sustain." }
+      - { name: "Shiva's Guard", reason: "Healing reduction aura later." }
+
+  healing_regen:
+    items:
+      - { name: "Spirit Vessel", reason: "Strong anti-heal charges." }
+      - { name: "Shiva's Guard", reason: "Reduces area healing late." }
+      - { name: "Urn of Shadows", reason: "Lane-friendly anti-heal buildup." }
+
+  illusions_summons:
+    items:
+      - { name: "Crimson Guard", reason: "Blocks swarm physical damage." }
+      - { name: "Maelstrom", reason: "Chain lightning clears summons/illusions." }
+      - { name: "Battle Fury", reason: "Cleave vs stacked units." }
+      - { name: "Shiva's Guard", reason: "AOE slow + clear vs illusions." }
+
+  invis_ganks:
+    items:
+      - { name: "Sentry Ward", reason: "Lane vision against invis." }
+      - { name: "Dust of Appearance", reason: "Reveal rotations & escapes." }
+      - { name: "Gem of True Sight", reason: "Later, map control vs invis." }
+      - { name: "Glimmer Cape", reason: "Defensive save vs pickoffs." }
+
+  silence_roots:
+    items:
+      - { name: "Magic Wand", reason: "Burst sustain while silenced." }
+      - { name: "Manta Style", reason: "Self-dispel of silences/roots." }
+      - { name: "Lotus Orb", reason: "Reflects and dispels disables." }
+      - { name: "Black King Bar", reason: "Immunity if spells are decisive." }
+
+  hard_stuns_chain:
+    items:
+      - { name: "Black King Bar", reason: "Prevents chain stuns in fights." }
+      - { name: "Lotus Orb", reason: "Reflect + armor vs stun lanes." }
+      - { name: "Aeon Disk", reason: "Survive the first chain." }
+
+  mana_burn_drain:
+    items:
+      - { name: "Soul Ring", reason: "Independent mana supply." }
+      - { name: "Arcane Boots", reason: "Sustain your spells in lane." }
+      - { name: "Chakra (ally) / Bottle", reason: "External sustain vs burn." }
+
+  high_mobility:
+    items:
+      - { name: "Rod of Atos", reason: "Root to stop mobility." }
+      - { name: "Orchid Malevolence", reason: "Silence + burst vs mobile heroes." }
+      - { name: "Heaven's Halberd", reason: "Disarm right-click jumpers." }
+      - { name: "Ghost Scepter", reason: "Dodge burst from gap-close carries." }
+
+  channeling:
+    items:
+      - { name: "Eul's Scepter", reason: "Instant cancel for channels." }
+      - { name: "Orchid Malevolence", reason: "Silence cancels channel." }
+      - { name: "Abyssal Blade", reason: "Point-and-click stun later." }
+
+  evasion:
+    items:
+      - { name: "Monkey King Bar", reason: "True strike vs evasion." }
+      - { name: "Bloodthorn", reason: "Crit + true strike silence." }
+
+  break_needed:
+    items:
+      - { name: "Silver Edge", reason: "Break passive defensive skills." }
+      - { name: "Phylactery (utility)", reason: "Adds slow to keep ranged break hits." }
+
+  kite_poke:
+    items:
+      - { name: "Phase Boots", reason: "Move speed to disengage." }
+      - { name: "Drum of Endurance", reason: "Team MS to kite pokers." }
+      - { name: "Force Staff", reason: "Instant repositioning." }
+
+  dispel_needed:
+    items:
+      - { name: "Lotus Orb", reason: "Armor + dispel." }
+      - { name: "Manta Style", reason: "Self-dispel for agility/int carries." }
+      - { name: "Guardian Greaves", reason: "Team dispel + sustain." }
+
+  reflect_needed:
+    items:
+      - { name: "Lotus Orb", reason: "Reflect single-target disables/spells." }
+      - { name: "Blade Mail", reason: "Punish burst windows." }
+
+  high_attack_speed:
+    items:
+      - { name: "Crimson Guard", reason: "Blocks multi-hit chip damage." }
+      - { name: "Shiva's Guard", reason: "AS slow aura for team." }
+      - { name: "Halberd", reason: "Disarm DPS cores." }
+
+  armor_stackers:
+    items:
+      - { name: "Desolator", reason: "Race on minus-armor strats." }
+      - { name: "Assault Cuirass", reason: "Team armor to counteract." }
+
+  high_ehp_tanks:
+    items:
+      - { name: "Spirit Vessel", reason: "Percentage-based HP burn." }
+      - { name: "Eye of Skadi", reason: "Healing reduction + stats." }
+      - { name: "Silver Edge", reason: "Breaks some tank passives." }
+
+hero_tags:
+  # Mid/pos4 casters
+  zeus:                [spell_spammer, heavy_magic, burst_magic]
+  skywrath_mage:       [spell_spammer, heavy_magic, burst_magic, silence_roots]
+  lina:                [burst_magic, spell_spammer]
+  pugna:               [heavy_magic, channeling]
+  silencer:            [spell_spammer, silence_roots]
+  queenofpain:         [spell_spammer, high_mobility, burst_magic]
+
+  # Right-click bullies & lifesteal
+  ursa:                [right_click_bully, lifesteal_sustain, high_attack_speed]
+  phantom_assassin:    [right_click_bully, evasion]
+  sniper:              [kite_poke, right_click_bully]
+  templar_assassin:    [right_click_bully, armor_reduction]
+  drow_ranger:         [kite_poke, right_click_bully, silence_roots]
+  troll_warlord:       [right_click_bully, high_attack_speed, lifesteal_sustain]
+
+  # Illusions & summons
+  naga_siren:          [illusions_summons, kite_poke]
+  phantom_lancer:      [illusions_summons, high_mobility]
+  broodmother:         [illusions_summons, right_click_bully]
+  nature's_prophet:    [illusions_summons, kite_poke]
+
+  # Invis/gankers
+  riki:                [invis_ganks, silence_roots, high_mobility]
+  clinkz:              [invis_ganks, right_click_bully]
+  bounty_hunter:       [invis_ganks, kite_poke]
+  nyx_assassin:        [invis_ganks, burst_magic, mana_burn_drain]
+
+  # Control / channelers / dispels
+  lion:                [hard_stuns_chain, mana_burn_drain, burst_magic]
+  shadow_shaman:       [hard_stuns_chain, channeling]
+  bane:                [channeling, hard_stuns_chain]
+  treant_protector:    [healing_regen, hard_stuns_chain, dispel_needed]
+
+  # Tanks / passives / breaks
+  bristleback:         [high_ehp_tanks, break_needed]
+  huskar:              [lifesteal_sustain, high_ehp_tanks]
+  dragon_knight:       [high_ehp_tanks, armor_reduction]
+  legion_commander:    [right_click_bully, hard_stuns_chain, high_ehp_tanks]
+
+  # Mobility/evaders
+  storm_spirit:        [high_mobility, burst_magic]
+  ember_spirit:        [high_mobility, spell_spammer]
+  void_spirit:         [high_mobility, burst_magic]
+  morphling:           [high_mobility, lifesteal_sustain]
+  windranger:          [high_mobility, evasion]
+
+  # Push/heal cores
+  death_prophet:       [healing_regen, kite_poke]
+  warlock:             [healing_regen, hard_stuns_chain]

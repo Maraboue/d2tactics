@@ -1,0 +1,334 @@
+tag_boosts:
+  # --- Magic damage / nukers / silence ------------------------------------------------------------
+  heavy_magic:
+    start:
+      "Infused Raindrops": 0.35
+      "Magic Wand": 0.15
+    early:
+      "Cloak": 0.25
+      "Hood of Defiance": 0.45
+    mid:
+      "Pipe of Insight": 0.60
+      "Black King Bar": 0.25
+      "Eternal Shroud": 0.25
+    late:
+      "Black King Bar": 0.25
+      "Pipe of Insight": 0.25
+
+  spell_spammer:
+    start:
+      "Magic Wand": 0.20
+    early:
+      "Arcane Boots": 0.20
+      "Ring of Basilius": 0.15
+    mid:
+      "Kaya and Sange": 0.20
+      "Octarine Core": 0.20
+    late:
+      "Octarine Core": 0.20
+
+  silence:
+    early:
+      "Magic Wand": 0.15
+      "Lotus Orb": 0.25
+      "Manta Style": 0.35
+    mid:
+      "Black King Bar": 0.45
+      "Lotus Orb": 0.35
+    late:
+      "Black King Bar": 0.35
+      "Manta Style": 0.35
+
+  disables:  # generic stuns/hexes
+    early:
+      "Magic Wand": 0.15
+      "Phase Boots": 0.10
+      "Wind Lace": 0.10
+    mid:
+      "Black King Bar": 0.40
+      "Lotus Orb": 0.25
+
+  burst_magic:
+    early:
+      "Hood of Defiance": 0.35
+    mid:
+      "Pipe of Insight": 0.50
+      "Black King Bar": 0.25
+
+  nuker:
+    early:
+      "Cloak": 0.25
+      "Magic Wand": 0.15
+    mid:
+      "Pipe of Insight": 0.45
+
+  root_disables:
+    early:
+      "Force Staff": 0.35
+      "Phase Boots": 0.15
+    mid:
+      "Force Staff": 0.35
+      "Lotus Orb": 0.25
+
+  stun_chain:
+    early:
+      "Magic Wand": 0.20
+      "Bracer": 0.10
+    mid:
+      "Black King Bar": 0.45
+      "Lotus Orb": 0.20
+
+  mana_burn:
+    early:
+      "Arcane Boots": 0.25
+      "Magic Wand": 0.20
+    mid:
+      "Kaya and Sange": 0.15
+      "Bloodstone": 0.25
+      "Octarine Core": 0.15
+
+  mana_burn_target:  # same intent as mana_burn; keep both for safety
+    early:
+      "Arcane Boots": 0.25
+      "Magic Wand": 0.20
+    mid:
+      "Kaya and Sange": 0.15
+      "Bloodstone": 0.25
+      "Octarine Core": 0.15
+
+  # --- Right-click / physical pressure ------------------------------------------------------------
+  right_click_carry:
+    early:
+      "Buckler": 0.25
+      "Pavise": 0.25
+      "Vanguard": 0.25
+    mid:
+      "Crimson Guard": 0.50
+      "Shiva's Guard": 0.25
+      "Solar Crest": 0.20
+    late:
+      "Shiva's Guard": 0.25
+      "Assault Cuirass": 0.30
+
+  physical_burst:
+    early:
+      "Buckler": 0.25
+      "Chainmail": 0.15
+      "Vanguard": 0.25
+    mid:
+      "Crimson Guard": 0.50
+      "Ghost Scepter": 0.35
+      "Shiva's Guard": 0.25
+
+  armor_shred:
+    early:
+      "Buckler": 0.25
+      "Pavise": 0.25
+    mid:
+      "Crimson Guard": 0.45
+      "Assault Cuirass": 0.35
+    late:
+      "Assault Cuirass": 0.35
+      "Shiva's Guard": 0.25
+
+  evasion:
+    mid:
+      "Monkey King Bar": 0.50
+
+  high_range:
+    early:
+      "Wind Lace": 0.15
+    mid:
+      "Blink Dagger": 0.15
+      "Force Staff": 0.35
+
+  magic_immunity_window:  # heroes who rely on spell immunity timings (e.g., Jugg spin/omni)
+    mid:
+      "Scythe of Vyse": 0.15
+      "Abyssal Blade": 0.15
+    late:
+      "Abyssal Blade": 0.20
+
+  mobility:
+    early:
+      "Wind Lace": 0.15
+      "Phase Boots": 0.10
+    mid:
+      "Blink Dagger": 0.30
+      "Force Staff": 0.30
+    late:
+      "Swift Blink": 0.25
+
+  melee_gapclose:
+    early:
+      "Phase Boots": 0.10
+      "Buckler": 0.15
+    mid:
+      "Crimson Guard": 0.40
+      "Force Staff": 0.30
+
+  roshan_early:
+    early:
+      "Medallion of Courage": 0.25
+      "Solar Crest": 0.20
+    mid:
+      "Solar Crest": 0.25
+      "Vladimir's Offering": 0.20
+
+  refraction:
+    early:
+      "Blight Stone": 0.25
+    mid:
+      "Spirit Vessel": 0.25
+      "Shiva's Guard": 0.20
+
+  desolator_timing:
+    early:
+      "Buckler": 0.25
+    mid:
+      "Crimson Guard": 0.40
+      "Assault Cuirass": 0.25
+
+  # --- Tank / sustain / DoT ----------------------------------------------------------------------
+  tank_sustain:
+    early:
+      "Vanguard": 0.30
+      "Ring of Health": 0.20
+    mid:
+      "Crimson Guard": 0.45
+      "Heart of Tarrasque": 0.25
+
+  damage_over_time:
+    early:
+      "Magic Wand": 0.20
+      "Hood of Defiance": 0.35
+    mid:
+      "Pipe of Insight": 0.50
+
+  break:
+    mid:
+      "Lotus Orb": 0.25
+      "Black King Bar": 0.20
+
+  teamfight_dot:
+    early:
+      "Hood of Defiance": 0.25
+    mid:
+      "Pipe of Insight": 0.45
+      "Greaves of the Guardian": 0.20
+
+  aura_armor:
+    early:
+      "Blight Stone": 0.10      # to answer armor via pressure
+      "Buckler": 0.20
+    mid:
+      "Assault Cuirass": 0.30
+      "Crimson Guard": 0.30
+
+  # --- Illusions / summons / push ----------------------------------------------------------------
+  illusions:
+    early:
+      "Maelstrom": 0.35
+      "Radiance": 0.25
+      "Vanguard": 0.20
+    mid:
+      "Battle Fury": 0.35
+      "Shiva's Guard": 0.25
+      "Mjollnir": 0.25
+    late:
+      "Shiva's Guard": 0.25
+      "Mjollnir": 0.25
+
+  illusions_countered_by_diffusal:  # Medusa note
+    mid:
+      "Diffusal Blade": 0.35
+
+  summons:
+    early:
+      "Maelstrom": 0.35
+      "Boots of Bearing": 0.25
+    mid:
+      "Crimson Guard": 0.40
+      "Mjollnir": 0.25
+
+  summons_push:
+    early:
+      "Maelstrom": 0.35
+      "Pavise": 0.25
+    mid:
+      "Crimson Guard": 0.40
+      "Mjollnir": 0.25
+
+  push:
+    early:
+      "Pavise": 0.25
+      "Buckler": 0.25
+    mid:
+      "Greaves of the Guardian": 0.25
+      "Crimson Guard": 0.25
+
+  lane_pressure:
+    early:
+      "Magic Wand": 0.15
+      "Ring of Basilius": 0.15
+    mid:
+      "Mekansm": 0.20
+      "Greaves of the Guardian": 0.25
+
+  global:
+    early:
+      "TP Scroll": 0.20
+      "Wind Lace": 0.10
+    mid:
+      "Boots of Travel": 0.25
+
+  # --- Vision / invis / pickoff ------------------------------------------------------------------
+  invis:
+    start:
+      "Observer and Sentry Wards": 0.50
+    early:
+      "Sentry Ward": 0.60
+      "Dust of Appearance": 0.60
+    mid:
+      "Gem of True Sight": 0.60
+      "Glimmer Cape": 0.15
+
+  pickoff:
+    early:
+      "Glimmer Cape": 0.20
+      "Force Staff": 0.25
+    mid:
+      "Glimmer Cape": 0.20
+      "Force Staff": 0.30
+
+  purge:
+    mid:
+      "Lotus Orb": 0.25
+      "Guardian Greaves": 0.20
+
+  teamfight_lockdown:
+    early:
+      "Magic Wand": 0.15
+      "Pavise": 0.20
+    mid:
+      "Crimson Guard": 0.35
+      "Black King Bar": 0.25
+      "Force Staff": 0.30
+
+  single_target_suppress:  # Doom-like
+    early:
+      "Magic Wand": 0.15
+    mid:
+      "Black King Bar": 0.40
+      "Lotus Orb": 0.30
+
+  # --- Mana shield / niche notes -----------------------------------------------------------------
+  mana_shield:
+    mid:
+      "Diffusal Blade": 0.30
+      "Spirit Vessel": 0.20
+
+  dispel_song:
+    mid:
+      "Black King Bar": 0.20
+      "Lotus Orb": 0.25

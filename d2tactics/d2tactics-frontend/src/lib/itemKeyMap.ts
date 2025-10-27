@@ -1,0 +1,33 @@
+// src/lib/itemKeyMap.ts
+// Minimal map; add more as needed. Key = OpenDota item key, Value = pretty name (what your icons expect).
+export const KEY_TO_PRETTY: Record<string, string> = {
+    blink: "Blink Dagger",
+    black_king_bar: "Black King Bar",
+    phase_boots: "Phase Boots",
+    power_treads: "Power Treads",
+    arcane_boots: "Arcane Boots",
+    magic_wand: "Magic Wand",
+    soul_ring: "Soul Ring",
+    hood_of_defiance: "Hood of Defiance",
+    pipe: "Pipe of Insight",
+    force_staff: "Force Staff",
+    glimmer_cape: "Glimmer Cape",
+    lotus_orb: "Lotus Orb",
+    guardian_greaves: "Greaves of the Guardian",
+    mekansm: "Mekansm",
+    vanguard: "Vanguard",
+    crimson_guard: "Crimson Guard",
+    assault: "Assault Cuirass",
+    shivas_guard: "Shiva's Guard",
+    mjollnir: "Mjollnir",
+    maelstrom: "Maelstrom",
+    radiance: "Radiance",
+    battle_fury: "Battle Fury",
+    diffusal_blade: "Diffusal Blade",
+    monkey_king_bar: "Monkey King Bar",
+    kaya_and_sange: "Kaya and Sange",
+    octarine_core: "Octarine Core",
+    aghanims_shard: "Aghanim's Shard",
+    aghanims_scepter: "Aghanim's Scepter",
+    // ...extend as you see them in the API response
+};

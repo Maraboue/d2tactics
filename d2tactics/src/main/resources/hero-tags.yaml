@@ -1,0 +1,106 @@
+hero_tags:
+  # --- Supports / Nukers / Magic Bursters ---
+  crystal_maiden: [heavy_magic, mana_burn_target, root_disables]
+  lion: [heavy_magic, disables, mana_burn]
+  lina: [heavy_magic, burst_magic, nuker]
+  skywrath_mage: [heavy_magic, silence]
+  silencer: [silence, heavy_magic]
+  zeus: [heavy_magic, spell_spammer]
+  lich: [heavy_magic, lane_pressure]
+  pugna: [heavy_magic, mana_burn_target, tower_pressure]
+  oracle: [save_support, purge]
+  dazzle: [save_support, armor_amp]
+  warlock: [teamfight_dot, sustain_heal]
+  witch_doctor: [damage_over_time, sustain_heal]
+  shadow_shaman: [disables, push, summons]
+  disruptor: [silence, teamfight_lockdown]
+  ancient_apparition: [heavy_magic, anti_heal]
+  keeper_of_the_light: [spell_spammer, mana_battery]
+  rubick: [disables, spell_spammer]
+  bane: [single_target_suppress, disables]
+  winter_wyvern: [save_support, physical_counter]
+  dark_willow: [magic_burst, evasive_support]
+
+  # --- Invis / Pickoffs ---
+  riki: [invis, silence, mobility]
+  clinkz: [invis, right_click_carry]
+  bounty_hunter: [invis, pickoff]
+  nyx_assassin: [mana_burn, invis, stun_chain]
+
+  # --- Right Click Carries / DPS Cores ---
+  phantom_assassin: [physical_burst, evasion, right_click_carry]
+  drow_ranger: [right_click_carry, physical_burst, silence]
+  sniper: [right_click_carry, high_range]
+  monkey_king: [mobility, right_click_carry]
+  juggernaut: [right_click_carry, magic_immunity_window]
+  ursa: [melee_gapclose, physical_burst, roshan_early]
+  life_stealer: [right_click_carry, sustain_heal, magic_immunity_window]
+  chaos_knight: [illusions, physical_burst]
+  troll_warlord: [right_click_carry, sustain_heal]
+  weaver: [mobility, right_click_carry]
+  templar_assassin: [physical_burst, refraction, desolator_timing]
+  gyrocopter: [right_click_carry, spell_spammer]
+  phantom_lancer: [illusions, mana_burn]
+  naga_siren: [illusions, dispel_song]
+  terrorblade: [illusions, right_click_carry]
+  spectre: [global, illusions]
+  medusa: [mana_shield, illusions_countered_by_diffusal]
+  arc_warden: [high_range, push]
+  muerta: [right_click_carry, burst_magic]
+
+  # --- Tank / Bruiser / Frontliners ---
+  bristleback: [tank_sustain, damage_over_time, armor_shred]
+  viper: [damage_over_time, break]
+  venomancer: [damage_over_time, teamfight_dot]
+  abaddon: [save_support, sustain_heal]
+  dragon_knight: [tank_sustain, push]
+  sven: [physical_burst, right_click_carry]
+  kunkka: [teamfight_lockdown, tank_sustain]
+  tidehunter: [teamfight_lockdown, tank_sustain]
+  centaur: [tank_sustain, melee_gapclose]
+  # fix slug from HeroIdMapper:
+  magnataur: [teamfight_lockdown, mobility]
+
+  axe: [melee_gapclose, tank_sustain]
+
+  # --- Gap closers / Rock fights ---
+  slardar: [melee_gapclose, armor_shred]
+  tusk: [pickoff, lockdown]
+  spirit_breaker: [global, melee_gapclose]
+  rattletrap: [pickoff, teamfight_lockdown]
+  primal_beast: [melee_gapclose, disrupt]
+  mars: [teamfight_lockdown, physical_burst]
+
+  # --- Illusion / Summon / Push Heroes ---
+  broodmother: [summons, push, lane_pressure]
+  furion: [summons, push, global]
+  lone_druid: [summons, right_click_carry]
+  visage: [summons, pickoff]
+  abyssal_underlord: [aura_armor, summons_push]
+
+  # --- Heavy Control / Teamfight Initiators ---
+  enigma: [teamfight_lockdown, push]
+  earthshaker: [teamfight_lockdown, stun_chain, melee_gapclose]
+  sand_king: [teamfight_dot, stun_chain]
+  pudge: [pickoff, tank_sustain]
+  dark_seer: [teamfight_lockdown, aura_armor]
+  pangolier: [mobility, teamfight_lockdown]
+
+  # --- Mobility / Mid spell pressure ---
+  puck: [mobility, silence, burst_magic]
+  ember_spirit: [mobility, spell_spammer]
+  storm_spirit: [mobility, mana_burn_target]
+  queenofpain: [burst_magic, mobility]
+  void_spirit: [mobility, burst_magic]
+
+  # --- Scaling Cores / Spellcasters / Sustain ---
+  obsidian_destroyer: [mana_burn, spell_spammer]
+  necrolyte: [sustain_heal, teamfight_dot]
+  invoker: [spell_spammer, heavy_magic]
+  morphling: [right_click_carry, sustain_heal]
+  razor: [damage_over_time, armor_shred]
+  huskar: [damage_over_time, sustain_heal]
+  alchemist: [sustain_heal, right_click_carry]
+  chen: [summons, sustain_heal]
+
+  doom_bringer: [silence, break, single_target_suppress]

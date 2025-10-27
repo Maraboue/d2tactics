@@ -1,0 +1,59 @@
+# src/main/resources/counters/tag-rules.yaml
+rules:
+  # ---- Roles -> tags (exact text from OpenDota's heroStats.roles array) ----
+  roles_to_tags:
+    Support: [save_support, disables, spell_spammer]
+    Nuker: [heavy_magic, burst_magic]
+    Disabler: [disables]
+    Durable: [tank_sustain]
+    Initiator: [teamfight_lockdown, stun_chain]
+    Escape: [mobility]
+    Pusher: [push, summons]
+    Carry: [right_click_carry]
+    Jungler: [summons, sustain_heal]
+
+  # ---- Ability keyword match (case-insensitive substring or regex) ----
+  # These patterns are matched against the ability's name and the textual description.
+  ability_keywords:
+    silence: [silence]
+    hex: [disables]
+    stun: [stun_chain, disables]
+    mini-stun: [stun_chain]
+    bash: [stun_chain]
+    root: [root_disables]
+    leash: [root_disables]
+    fear: [disables]
+    disarm: [disables]
+    mute: [silence]
+    break: [break]
+    sleep: [single_target_suppress]
+    banish: [single_target_suppress]
+    imprison: [single_target_suppress]
+    doom: [single_target_suppress, silence, break]
+    mana burn: [mana_burn]
+    mana drain: [mana_burn]
+    invis: [invis]
+    invisible: [invis]
+    invisibility: [invis]
+    illusion: [illusions]
+    illusions: [illusions]
+    summon: [summons]
+    spirit bear: [summons]
+    golem: [summons]
+    plague ward: [teamfight_dot, damage_over_time, push]
+    poison: [damage_over_time]
+    toxic: [damage_over_time]
+    burn: [damage_over_time]
+    dot: [damage_over_time]
+    global: [global]
+    reveal: [invis]   # many reveals indicate invis interactions
+    shard: []         # ignore generic shard mentions
+    scepter: []       # ignore generic aghs mentions
+
+  # optional: per-hero patch if needed (guaranteed tags)
+  patches:
+    # slug: [extra_tag, ...]
+    riki: [silence, mobility]
+    clinkz: [invis, right_click_carry]
+    earthshaker: [teamfight_lockdown]
+    mirana: [stun_chain, mobility]
