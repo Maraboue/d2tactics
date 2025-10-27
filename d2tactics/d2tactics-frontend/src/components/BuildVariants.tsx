@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import { useMemo } from "react";
 import type { ItemPopularityResponse } from "../lib/inferOrder";
 import { inferVariants } from "../lib/inferVariants";
 

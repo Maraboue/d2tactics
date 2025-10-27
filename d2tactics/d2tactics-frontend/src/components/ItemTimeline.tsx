@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { ItemPopularityResponse, PhaseKey } from "../lib/inferOrder";
 import { inferChains } from "../lib/inferOrder";
 
@@ -165,7 +165,7 @@ export default function ItemTimeline({ data, getIconUrl, title = "Item Timeline"
                                     return (
                                         <div
                                             key={name}
-                                            ref={(el) => (itemRefs.current[refKey] = el)}
+                                            ref={(el) => void (itemRefs.current[refKey] = el)}
                                             title={`${name} • ${count}`}
                                             onClick={() => setFocused(prev => (prev === name ? null : name))}
                                             style={{
@@ -182,7 +182,6 @@ export default function ItemTimeline({ data, getIconUrl, title = "Item Timeline"
                                                 display: "flex",
                                                 alignItems: "center",
                                                 gap: 10,
-                                                padding: 8,
                                             }}
                                         >
                                             {/* Step badge */}
