@@ -13,16 +13,19 @@ type Props = {
 
     highlightTopK?: number;
     highlightTopPct?: number;
+
+    /** Color for “best in phase” ring/glow (kept from before) */
     topPhaseColor?: string;
 
-    pxPerMinute?: number;        // keep at 55 as you prefer
+    /** NEW: colors and labels for phase top ranks (1,2,3) */
+    phaseTopColors?: { 1: string; 2: string; 3: string };
+    phaseTopLabels?: { 1: string; 2: string; 3: string };
+
+    pxPerMinute?: number;
     autoFit?: boolean;
     rightPadPx?: number;
 
-    // NEW: click handler for selection
     onSelectItem?: (phase: Phase | undefined, itemName: string, minute: number) => void;
-
-    // NEW: selection predicate so the timeline can render a “selected” state
     isSelected?: (phase: Phase | undefined, itemName: string) => boolean;
 };
 
@@ -49,11 +52,13 @@ export default function TimedTimeline({
                                           highlightTopK = 8,
                                           highlightTopPct = 0.25,
                                           topPhaseColor = "#22c55e",
+                                          phaseTopColors = { 1: "#22c55e", 2: "#c0c0c0", 3: "#cd7f32" }, // gold, silver, bronze
+                                          phaseTopLabels = { 1: "TOP", 2: "#2", 3: "#3" },
                                           pxPerMinute = 55,
                                           autoFit = true,
                                           rightPadPx = 160,
-                                          onSelectItem,               // NEW
-                                          isSelected,                 // NEW
+                                          onSelectItem,
+                                          isSelected,
                                       }: Props) {
     const rows = useMemo(() => {
         const list = Object.entries(data || {}).map(([name, v]) => ({
@@ -77,6 +82,7 @@ export default function TimedTimeline({
         return [Math.min(...u), Math.max(...u)] as const;
     }, [rows]);
 
+    /** Highest by uses overall (unchanged) */
     const globalTop = useMemo(() => {
         if (!rows.length) return new Set<string>();
         const sorted = [...rows].sort((a, b) => b.uses - a.uses);
@@ -90,8 +96,12 @@ export default function TimedTimeline({
         return new Set(pick.map(x => x.name));
     }, [rows, highlightTopK, highlightTopPct]);
 
-    const topPerPhase = useMemo(() => {
-        if (!phaseOf) return new Set<string>();
+    /**
+     * NEW: per-phase top rankings → name -> rank (1..3). We only keep top 3.
+     */
+    const phaseTopRank = useMemo(() => {
+        const rank = new Map<string, 1 | 2 | 3>();
+        if (!phaseOf) return rank;
         const buckets: Record<Phase, { name: string; uses: number }[]> = {
             start: [], early: [], mid: [], late: [],
         };
@@ -99,13 +109,11 @@ export default function TimedTimeline({
             const p = r.phase;
             if (p) buckets[p].push({ name: r.name, uses: r.uses });
         }
-        const tops = new Set<string>();
         (Object.keys(buckets) as Phase[]).forEach(p => {
-            if (!buckets[p].length) return;
-            const best = buckets[p].reduce((a, b) => (b.uses > a.uses ? b : a));
-            tops.add(best.name);
+            const top3 = buckets[p].sort((a, b) => b.uses - a.uses).slice(0, 3);
+            top3.forEach((e, i) => rank.set(e.name, (i + 1) as 1 | 2 | 3));
         });
-        return tops;
+        return rank;
     }, [rows, phaseOf]);
 
     const { ref: outerRef, width: outerWidth } = useContainerWidth<HTMLDivElement>();
@@ -128,8 +136,8 @@ export default function TimedTimeline({
             leftPx: number;
             lane: number;
             normUses: number;
-            isGlobalTop: boolean;
-            isPhaseTop: boolean;
+            globalTop: boolean;
+            phaseRank?: 1 | 2 | 3;
             fadedByPhase: boolean;
         };
 
@@ -160,8 +168,8 @@ export default function TimedTimeline({
                 leftPx: x,
                 lane: chosen,
                 normUses: norm,
-                isGlobalTop: globalTop.has(r.name),
-                isPhaseTop: topPerPhase.has(r.name),
+                globalTop: globalTop.has(r.name),
+                phaseRank: phaseTopRank.get(r.name),
                 fadedByPhase: !!faded,
             });
         }
@@ -171,7 +179,7 @@ export default function TimedTimeline({
         const containerHeight = contentHeight + 24;
 
         return { items, laneCount, containerHeight };
-    }, [rows, minUses, maxUses, globalTop, topPerPhase, highlightPhases, pxPerMinute]);
+    }, [rows, minUses, maxUses, globalTop, phaseTopRank, highlightPhases, pxPerMinute]);
 
     const scale = useMemo(() => {
         if (!autoFit || !outerWidth || naturalInnerWidth <= 0) return 1;
@@ -205,7 +213,7 @@ export default function TimedTimeline({
                     style={{
                         position: "relative",
                         width: naturalInnerWidth,
-                        height: 50,
+                        height: placed.containerHeight,
                         transform: `scale(${scale})`,
                         transformOrigin: "top left",
                     }}
@@ -257,72 +265,83 @@ export default function TimedTimeline({
                     {/* Items */}
                     {placed.items.map((p) => {
                         const iconUrl = getIconUrl(p.name);
-                        const top = axisTop + 12 + p.lane * (laneHeight + laneGap);
+                        const top = axisTop + 12 + p.lane * (50 + 10);
 
+                        // Base border intensity by uses
                         const intensity = 0.35 + 0.65 * p.normUses;
-                        const borderColor = p.isPhaseTop
-                            ? topPhaseColor
-                            : mixColor("#3a4a6b", "#7aa7ff", intensity);
 
-                        const glow = p.isPhaseTop
-                            ? `0 0 0 2px ${rgba(topPhaseColor, 0.45)}, 0 12px 28px rgba(0,0,0,0.55)`
-                            : p.isGlobalTop
-                                ? `0 0 0 2px rgba(122,167,255,0.45), 0 12px 28px rgba(0,0,0,0.55)`
-                                : `0 8px 22px rgba(0,0,0,0.4)`;
+                        // Choose ring color:
+                        // 1) phase top-3 ring wins (1>2>3),
+                        // 2) otherwise blend blue by uses,
+                        // 3) selected adds a gold ring overlay.
+                        const phaseRankColor =
+                            p.phaseRank ? phaseTopColors[p.phaseRank] : undefined;
+
+                        const borderColor = phaseRankColor ?? mixColor("#3a4a6b", "#7aa7ff", intensity);
+
+                        const glow =
+                            phaseRankColor
+                                ? `0 0 0 2px ${rgba(phaseRankColor, 0.45)}, 0 12px 28px rgba(0,0,0,0.55)`
+                                : p.globalTop
+                                    ? `0 0 0 2px rgba(122,167,255,0.45), 0 12px 28px rgba(0,0,0,0.55)`
+                                    : `0 8px 22px rgba(0,0,0,0.4)`;
 
                         const baseOpacity = (p.fadedByPhase ? 0.35 : 0.8) * (0.85 + 0.15 * p.normUses);
 
-                        // NEW: selected state visuals
                         const selected = isSelected?.(p.phase, p.name) ?? false;
-                        const selRing = selected ? `0 0 0 2px rgba(250,204,21,0.65)` : "";
+                        const selRing = selected ? `0 0 0 2px rgba(250,204,21,0.75)` : "";
                         const cursor = onSelectItem ? "pointer" : "default";
+
+                        const badgeLabel = p.phaseRank ? phaseTopLabels[p.phaseRank] : undefined;
+                        const badgeBg = phaseRankColor ?? topPhaseColor;
+                        const badgeText = phaseRankColor ? readableText(badgeBg) : "#0b0f18";
 
                         return (
                             <div
                                 key={p.name + p.lane + p.leftPx}
                                 title={`${prettyPhase(p.phase)} • ${p.name} • ${p.minute.toFixed(1)}m • ${p.uses} uses`}
-                                onClick={() => onSelectItem?.(p.phase, p.name, p.minute)}   // NEW
+                                onClick={() => onSelectItem?.(p.phase, p.name, p.minute)}
                                 style={{
                                     position: "absolute",
                                     left: p.leftPx,
                                     top,
-                                    width: cardW,
+                                    width: 280,
                                     display: "flex",
                                     alignItems: "center",
                                     gap: 12,
                                     background: "rgba(12,16,22,0.96)",
                                     border: `2px solid ${borderColor}`,
-                                    boxShadow: selRing || glow,          // NEW: selection ring wins
+                                    boxShadow: selRing || glow,
                                     borderRadius: 12,
                                     padding: "10px 12px",
                                     opacity: baseOpacity,
                                     transition: "opacity 120ms, box-shadow 120ms, border-color 120ms",
-                                    cursor,                               // NEW
+                                    cursor,
                                 }}
                             >
-                                {p.isPhaseTop && (
+                                {badgeLabel && (
                                     <div
                                         style={{
                                             position: "absolute",
                                             top: -8,
                                             right: -8,
-                                            background: topPhaseColor,
-                                            color: "#0b0f18",
+                                            background: badgeBg,
+                                            color: badgeText,
                                             fontSize: 10,
                                             fontWeight: 800,
                                             padding: "2px 6px",
                                             borderRadius: 999,
-                                            boxShadow: `0 0 0 1px ${rgba(topPhaseColor, 0.4)}`,
+                                            boxShadow: `0 0 0 1px ${rgba(badgeBg, 0.4)}`,
                                         }}
                                     >
-                                        TOP
+                                        {badgeLabel}
                                     </div>
                                 )}
 
                                 <div
                                     style={{
-                                        width: 42,
-                                        height: 42,
+                                        width: 32,
+                                        height: 32,
                                         borderRadius: 8,
                                         overflow: "hidden",
                                         border: `1px solid ${borderColor}`,
@@ -338,11 +357,11 @@ export default function TimedTimeline({
                                 </div>
 
                                 <div style={{ display: "grid", minWidth: 0 }}>
-                  <span style={{ fontSize: 18, lineHeight: 1.15, wordBreak: "break-word", color: "#e8f1ff" }}>
+                  <span style={{ fontSize: 13, lineHeight: 1.15, wordBreak: "break-word", color: "#e8f1ff" }}>
                     {p.name}
                   </span>
-                                    <span style={{ fontSize: 11, color: p.isPhaseTop ? "#e6ffe8" : "#cfe0ff" }}>
-                    {p.minute.toFixed(1)}m • {p.uses} {p.phase ? `• ${prettyPhase(p.phase)}` : ""}
+                                    <span style={{ fontSize: 11, color: "#cfe0ff" }}>
+                    {p.minute.toFixed(1)}m {p.phase ? `• ${prettyPhase(p.phase)}` : ""} • {p.uses} uses
                   </span>
                                 </div>
                             </div>
@@ -356,7 +375,7 @@ export default function TimedTimeline({
     );
 }
 
-/* utils */
+/* ------------------------------ utils ----------------------------- */
 function normalize(v: number, vmin: number, vmax: number) {
     if (vmax <= vmin) return 0;
     return (v - vmin) / (vmax - vmin);
@@ -385,4 +404,12 @@ function prettyPhase(p?: Phase) {
     if (!p) return "";
     if (p === "start") return "Start";
     return p[0].toUpperCase() + p.slice(1);
+}
+
+/** Simple contrast heuristic for badge text */
+function readableText(bg: string) {
+    const rgb = bg.startsWith("#") ? hexToRgb(bg) : null;
+    const r = rgb ? rgb.r : 50, g = rgb ? rgb.g : 186, b = rgb ? rgb.b : 120;
+    const l = (0.299 * r + 0.587 * g + 0.114 * b);
+    return l > 160 ? "#0b0f18" : "#f8fafc";
 }
