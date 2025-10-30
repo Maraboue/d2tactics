@@ -119,9 +119,9 @@ export default function TimedTimeline({
     const { ref: outerRef, width: outerWidth } = useContainerWidth<HTMLDivElement>();
 
     const axisTop = 34;
-    const laneHeight = 50;
-    const laneGap = 10;
-    const cardW = 280;
+    const laneHeight = 5;
+    const laneGap = 20;
+    const cardW = 300;
     const minGapPx = 96;
     const sidePad = 18;
 

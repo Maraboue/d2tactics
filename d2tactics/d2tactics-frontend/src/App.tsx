@@ -355,7 +355,23 @@ export default function App() {
                     >
                         {loading ? "Loading…" : "Search hero"}
                     </button>
-
+                    {/* NEW: Clear build button */}
+                    <button
+                        onClick={clearBuild}
+                        style={{
+                            background: "#ef4444",
+                            color: "white",
+                            border: 0,
+                            padding: "10px 14px",
+                            borderRadius: 10,
+                            cursor: "pointer",
+                            whiteSpace: "nowrap",
+                            height: 42,
+                        }}
+                        title="Clear your selected items per phase"
+                    >
+                        Clear build
+                    </button>
                     <button
                         onClick={() => {
                             setView("recommend");
@@ -378,24 +394,6 @@ export default function App() {
                         }}
                     >
                         Recommend vs Enemy
-                    </button>
-
-                    {/* NEW: Clear build button */}
-                    <button
-                        onClick={clearBuild}
-                        style={{
-                            background: "#ef4444",
-                            color: "white",
-                            border: 0,
-                            padding: "10px 14px",
-                            borderRadius: 10,
-                            cursor: "pointer",
-                            whiteSpace: "nowrap",
-                            height: 42,
-                        }}
-                        title="Clear your selected items per phase"
-                    >
-                        Clear build
                     </button>
                 </div>
             </div>
