@@ -4,23 +4,25 @@
 FROM eclipse-temurin:21-jdk AS build
 WORKDIR /app
 
-# Copy Maven wrapper & pom first for better caching
+# Copy wrapper + pom first for better caching
 COPY .mvn/ .mvn/
 COPY mvnw pom.xml ./
+
+# Make wrapper executable and normalize line endings (important on Windows)
+RUN chmod +x mvnw && sed -i 's/\r$//' mvnw
+
+# Pre-fetch deps
 RUN ./mvnw -q -DskipTests dependency:go-offline
 
-# Copy source and build
+# Now copy sources and build
 COPY src ./src
 RUN ./mvnw -q -DskipTests package
 
 # --- Run stage ---
 FROM eclipse-temurin:21-jre
 WORKDIR /app
-
-# If your jar isn't SNAPSHOT, change to *.jar
+# Adjust the wildcard if your jar isn't a SNAPSHOT
 COPY --from=build /app/target/*-SNAPSHOT.jar /app/app.jar
-
 EXPOSE 8080
-# Render sets $PORT; pass it through to Spring Boot
 ENV PORT=8080
 ENTRYPOINT ["java","-Dserver.port=${PORT}","-jar","/app/app.jar"]
