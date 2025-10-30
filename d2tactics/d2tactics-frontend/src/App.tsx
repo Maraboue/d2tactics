@@ -1,36 +1,38 @@
-// src/App.tsx
 import { useEffect, useMemo, useState } from "react";
+import Container from "react-bootstrap/Container";
+import Row from "react-bootstrap/Row";
+import Col from "react-bootstrap/Col";
+import Button from "react-bootstrap/Button";
+import Card from "react-bootstrap/Card";
 
 import ErrorBanner from "./components/ErrorBanner";
 import { useItemIcons } from "./lib/useItemIcons";
 import HeroSearch from "./components/HeroSearch";
 import RecommendedItems from "./components/RecommendedItems";
-import { buildSyntheticTimings } from "./lib/buildSyntheticTimings";
-import { buildPhaseLookup } from "./lib/buildPhaseLookup";
 import TimedTimeline, { type Phase } from "./components/TimedTimeline";
 import SelectedBuildPanel from "./components/SelectedBuildPanel";
+import { buildSyntheticTimings } from "./lib/buildSyntheticTimings";
+import { buildPhaseLookup } from "./lib/buildPhaseLookup";
+import { useIsMobile } from "./lib/useIsMobile";
 
-/* ----------------------------- types ----------------------------- */
+/** ---------- types ---------- */
 type PhaseKey = "start_game_items" | "early_game_items" | "mid_game_items" | "late_game_items";
 type PopularityMap = Record<string, number>;
 type ItemPopularityResponse = Record<PhaseKey, PopularityMap>;
 
-const PHASES: Phase[] = ["start", "early", "mid", "late"];
+const PHASES = ["start", "early", "mid", "late"] as const;
+type PhaseStr = typeof PHASES[number];
 
-type UiError = {
-    title: string;
-    message?: string;
-    hint?: string;
-};
+type UiError = { title: string; message?: string; hint?: string };
 
 type RecommendResponse = {
     ally: string;
     enemy: string;
-    phase: string; // backend string; we only display titles
+    phase: string;
     recommendations: Record<string, number>;
 };
 
-/* ----------------------------- api ------------------------------- */
+/** ---------- api ---------- */
 const API_BASE = import.meta.env.VITE_API_BASE ?? "";
 
 function toUiError(status?: number): UiError {
@@ -49,23 +51,17 @@ async function fetchItemPopularity(heroSlug: string, opts: { timeoutMs?: number 
         const res = await fetch(url, { signal: controller.signal, credentials: "include" });
         clearTimeout(t);
         if (!res.ok) throw toUiError(res.status);
-
         const text = await res.text();
-        const ct = res.headers.get("content-type") || "";
-        const looksJson = ct.includes("application/json") || text.trim().startsWith("{") || text.trim().startsWith("[");
-        if (!looksJson) throw { title: "Unexpected response format", message: "The server returned non-JSON content.", hint: text.slice(0, 250) } as UiError;
-
-        let json: unknown;
-        try { json = JSON.parse(text); }
-        catch { throw { title: "Failed to parse data", message: "The response wasn’t valid JSON.", hint: text.slice(0, 250) } as UiError; }
-
-        const obj = json as Partial<ItemPopularityResponse>;
-        const hasKeys =
+        const looksJson = text.trim().startsWith("{") || text.trim().startsWith("[");
+        if (!looksJson) throw { title: "Unexpected response format", message: "The server returned non-JSON content.", hint: text.slice(0, 240) } as UiError;
+        const obj = JSON.parse(text) as Partial<ItemPopularityResponse>;
+        const ok =
             obj && typeof obj === "object" &&
-            "start_game_items" in obj && "early_game_items" in obj &&
-            "mid_game_items" in obj && "late_game_items" in obj;
-
-        if (!hasKeys) throw { title: "Unexpected JSON shape", message: "Missing expected item popularity sections." } as UiError;
+            "start_game_items" in obj &&
+            "early_game_items" in obj &&
+            "mid_game_items" in obj &&
+            "late_game_items" in obj;
+        if (!ok) throw { title: "Unexpected JSON shape", message: "Missing expected item popularity sections." } as UiError;
         return obj as ItemPopularityResponse;
     } catch (e: any) {
         clearTimeout(t);
@@ -75,7 +71,7 @@ async function fetchItemPopularity(heroSlug: string, opts: { timeoutMs?: number 
     }
 }
 
-async function fetchRecommendations(allySlug: string, enemySlug: string, phaseKey: Phase, top: number = 6): Promise<RecommendResponse> {
+async function fetchRecommendations(allySlug: string, enemySlug: string, phaseKey: PhaseStr, top = 6): Promise<RecommendResponse> {
     const controller = new AbortController();
     const t = setTimeout(() => controller.abort(), 15000);
     const url = `${API_BASE}/opendota/recommendation/recommend?ally=${encodeURIComponent(allySlug)}&enemy=${encodeURIComponent(enemySlug)}&phase=${encodeURIComponent(phaseKey)}&top=${top}`;
@@ -104,120 +100,109 @@ async function fetchTimingsFromBackend(heroSlug: string): Promise<Record<string,
     return res.json();
 }
 
-/* ----------------------- small utilities ------------------------- */
+/** ---------- utils ---------- */
 function useDebounced<T>(value: T, delay = 350): T {
     const [v, setV] = useState(value);
     useEffect(() => { const t = setTimeout(() => setV(value), delay); return () => clearTimeout(t); }, [value, delay]);
     return v;
 }
 
-/* ------------------------------ app ------------------------------ */
+/** ---------- App ---------- */
 export default function App() {
     type ViewMode = "popularity" | "recommend";
+    const isMobile = useIsMobile();
 
-    // Ally hero (pretty input vs slug)
+    // ally hero
     const [heroInput, setHeroInput] = useState("Axe");
     const [querySlug, setQuerySlug] = useState("axe");
     const debouncedSlug = useDebounced(querySlug);
 
-    // Enemy (only used in Recommend view)
+    // enemy (recommend only)
     const [enemyInput, setEnemyInput] = useState("");
     const [enemySlug, setEnemySlug] = useState("");
 
-    // View
+    // view
     const [view, setView] = useState<ViewMode>("popularity");
 
-    // Popularity state
+    // popularity
     const [data, setData] = useState<ItemPopularityResponse | null>(null);
     const [loading, setLoading] = useState(false);
     const [err, setErr] = useState<UiError | null>(null);
 
-    // Timings state
+    // timings
     const [timings, setTimings] = useState<Record<string, { minute: number; uses: number }> | null>(null);
     const [timingLoading, setTimingLoading] = useState(false);
     const [timingFrom, setTimingFrom] = useState<"explorer" | "synthetic" | "none">("none");
 
-    // Recommendations (all phases)
+    // recommendations (all phases)
     const [recLoading, setRecLoading] = useState(false);
     const [recErr, setRecErr] = useState<UiError | null>(null);
-    const [recAll, setRecAll] = useState<Partial<Record<Phase, RecommendResponse>>>({});
+    const [recAll, setRecAll] = useState<Partial<Record<PhaseStr, RecommendResponse>>>({});
 
-    // Build selection (per phase)
-    const [selected, setSelected] = useState<Record<Phase, string[]>>({
-        start: [],
-        early: [],
-        mid: [],
-        late: [],
+    // selection (build) state
+    const [selected, setSelected] = useState<Record<PhaseStr, string[]>>({
+        start: [], early: [], mid: [], late: [],
     });
     const addSelected = (phase: Phase | undefined, name: string) => {
-        const p: Phase = phase ?? "early";
+        const p = (phase as PhaseStr) ?? "early";
         setSelected(prev => {
-            if (prev[p].includes(name)) return prev;
+            const has = new Set(prev[p]);
+            if (has.has(name)) return prev;
             return { ...prev, [p]: [...prev[p], name] };
         });
     };
     const removeSelected = (phase: Phase, name: string) => {
-        setSelected(prev => ({ ...prev, [phase]: prev[phase].filter(n => n !== name) }));
+        const p = phase as PhaseStr;
+        setSelected(prev => ({ ...prev, [p]: prev[p].filter(n => n !== name) }));
     };
     const isChosen = (phase: Phase | undefined, name: string) => {
-        const p: Phase = phase ?? "early";
+        const p = (phase as PhaseStr) ?? "early";
         return selected[p].includes(name);
     };
     const clearBuild = () => setSelected({ start: [], early: [], mid: [], late: [] });
 
-    // Icons
+    // icons
     const { getItemIcon, ready: iconsReady } = useItemIcons();
     const canSearch = useMemo(() => debouncedSlug.trim().length > 0, [debouncedSlug]);
 
-    /** Fetch popularity (and timings with fallback) */
+    /** load popularity + timings */
     const runPopularity = async () => {
         if (!canSearch) return;
         setView("popularity");
         setRecErr(null);
         setRecAll({});
-
         setLoading(true);
         setErr(null);
         try {
             const json = await fetchItemPopularity(debouncedSlug, { timeoutMs: 15000 });
             setData(json);
-
-            // Timings: try real → fallback to synthetic
             setTimingLoading(true);
             try {
                 const real = await fetchTimingsFromBackend(debouncedSlug);
                 if (real && Object.keys(real).length) {
-                    setTimings(real);
-                    setTimingFrom("explorer");
+                    setTimings(real); setTimingFrom("explorer");
                 } else {
-                    setTimings(buildSyntheticTimings(json, 10));
-                    setTimingFrom("synthetic");
+                    setTimings(buildSyntheticTimings(json, 10)); setTimingFrom("synthetic");
                 }
             } catch {
-                setTimings(buildSyntheticTimings(json, 10));
-                setTimingFrom("synthetic");
+                setTimings(buildSyntheticTimings(json, 10)); setTimingFrom("synthetic");
             } finally {
                 setTimingLoading(false);
             }
         } catch (e) {
-            setData(null);
-            setErr(e as UiError);
-            setTimings(null);
-            setTimingFrom("none");
+            setData(null); setErr(e as UiError); setTimings(null); setTimingFrom("none");
         } finally {
             setLoading(false);
         }
     };
 
-    /** Auto-fetch when ally changes (popularity view only) */
+    // auto load popularity view
     useEffect(() => {
         if (view !== "popularity") return;
         if (!canSearch) { setData(null); setErr(null); setTimings(null); setTimingFrom("none"); return; }
-
         let cancelled = false;
         (async () => {
-            setLoading(true);
-            setErr(null);
+            setLoading(true); setErr(null);
             try {
                 const json = await fetchItemPopularity(debouncedSlug, { timeoutMs: 15000 });
                 if (!cancelled) {
@@ -226,48 +211,30 @@ export default function App() {
                     try {
                         const real = await fetchTimingsFromBackend(debouncedSlug);
                         if (!cancelled) {
-                            if (real && Object.keys(real).length) {
-                                setTimings(real);
-                                setTimingFrom("explorer");
-                            } else {
-                                setTimings(buildSyntheticTimings(json, 10));
-                                setTimingFrom("synthetic");
-                            }
+                            if (real && Object.keys(real).length) { setTimings(real); setTimingFrom("explorer"); }
+                            else { setTimings(buildSyntheticTimings(json, 10)); setTimingFrom("synthetic"); }
                         }
                     } catch {
-                        if (!cancelled) {
-                            setTimings(buildSyntheticTimings(json, 10));
-                            setTimingFrom("synthetic");
-                        }
+                        if (!cancelled) { setTimings(buildSyntheticTimings(json, 10)); setTimingFrom("synthetic"); }
                     } finally {
                         if (!cancelled) setTimingLoading(false);
                     }
                 }
             } catch (e) {
-                if (!cancelled) {
-                    setErr(e as UiError);
-                    setData(null);
-                    setTimings(null);
-                    setTimingFrom("none");
-                }
+                if (!cancelled) { setErr(e as UiError); setData(null); setTimings(null); setTimingFrom("none"); }
             } finally {
                 if (!cancelled) setLoading(false);
             }
         })();
-
         return () => { cancelled = true; };
     }, [debouncedSlug, canSearch, view]);
 
-    /** Auto-fetch recommendations when in recommend view AND enemy chosen */
+    // auto load recommend (all phases) when enemy selected
     useEffect(() => {
-        if (view !== "recommend") return;
-        if (!enemySlug) return;
+        if (view !== "recommend" || !enemySlug) return;
         let aborted = false;
-
         (async () => {
-            setRecErr(null);
-            setRecLoading(true);
-            setRecAll({});
+            setRecErr(null); setRecLoading(true); setRecAll({});
             try {
                 const results = await Promise.all(
                     PHASES.map(async (p) => {
@@ -276,240 +243,188 @@ export default function App() {
                     })
                 );
                 if (!aborted) {
-                    const next: Partial<Record<Phase, RecommendResponse>> = {};
+                    const next: Partial<Record<PhaseStr, RecommendResponse>> = {};
                     for (const [p, r] of results) next[p] = r;
                     setRecAll(next);
                 }
             } catch (e) {
-                if (!aborted) {
-                    setRecAll({});
-                    setRecErr(e as UiError);
-                }
+                if (!aborted) { setRecAll({}); setRecErr(e as UiError); }
             } finally {
                 if (!aborted) setRecLoading(false);
             }
         })();
-
         return () => { aborted = true; };
     }, [view, querySlug, enemySlug]);
 
     return (
-        <div
-            style={{
-                minHeight: "100vh",
-                background: "#0b0e12",
-                color: "#e9f0f3",
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                padding: "40px 20px",
-                gap: 20,
-            }}
-        >
-            <header style={{textAlign: "center"}}>
-                <h1 style={{margin: 0, fontSize: 36, letterSpacing: 0.3}}>
-                    Dota 2 Tactics
-                </h1>
-                <h3 style={{margin: 0, fontSize: 16, letterSpacing: 0.3}}>
-                    Create builds based on top items for your hero.
-                </h3>
-            </header>
+        <Container fluid className="py-4" style={{ minHeight: "100vh" }}>
+            <Row className="mb-3">
+                <Col className="text-center">
+                    <h1 className="h4 m-0">D2Tactics — Item Popularity & Matchups</h1>
+                </Col>
+            </Row>
 
-            {/* Controls row */}
-            <div
-                style={{
-                    display: "flex",
-                    gap: 34,
-                    justifyContent: "center",
-                    width: "100%",
-                    maxWidth: 900,
-                    flexWrap: "wrap",
-                }}
-            >
-                {/* Ally (your hero) */}
-                <div style={{ flex: "1 1 340px", minWidth: 320 }}>
+            {/* controls */}
+            <Row className="g-3 justify-content-center mb-2">
+                <Col xs={12} md={6} lg={5}>
                     <HeroSearch
                         value={heroInput}
                         onChange={(v) => setHeroInput(v)}
                         onSelect={(heroSlug) => setQuerySlug(heroSlug)}
                         placeholder="Your hero (e.g., Axe, Nyx Assassin)…"
                     />
-                </div>
+                </Col>
 
-                {/* Buttons */}
-                <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-                    <button
-                        onClick={runPopularity}
-                        disabled={loading}
-                        style={{
-                            background: "#16a34a",
-                            color: "white",
-                            border: 0,
-                            padding: "10px 14px",
-                            borderRadius: 10,
-                            cursor: !loading ? "pointer" : "not-allowed",
-                            opacity: !loading ? 1 : 0.6,
-                            whiteSpace: "nowrap",
-                            height: 42,
-                        }}
-                    >
-                        {loading ? "Loading…" : "Search hero"}
-                    </button>
-                    {/* NEW: Clear build button */}
-                    <button
-                        onClick={clearBuild}
-                        style={{
-                            background: "#ef4444",
-                            color: "white",
-                            border: 0,
-                            padding: "10px 14px",
-                            borderRadius: 10,
-                            cursor: "pointer",
-                            whiteSpace: "nowrap",
-                            height: 42,
-                        }}
-                        title="Clear your selected items per phase"
-                    >
-                        Clear build
-                    </button>
-                    <button
+                <Col xs="auto" className="d-flex gap-2 align-items-stretch">
+                    <Button variant="success" disabled={loading} onClick={runPopularity}>
+                        {loading ? "Loading…" : "Search Hero"}
+                    </Button>
+                    <Button variant="danger" onClick={clearBuild} title="Clear your selected items">
+                        Clear Build
+                    </Button>
+                    <Button
+                        variant="primary"
+                        disabled={recLoading}
                         onClick={() => {
                             setView("recommend");
-                            setErr(null);
-                            setData(null);
-                            setTimings(null);
-                            setTimingFrom("none");
-                        }}
-                        disabled={recLoading}
-                        style={{
-                            background: "#2563eb",
-                            color: "white",
-                            border: 0,
-                            padding: "10px 14px",
-                            borderRadius: 10,
-                            cursor: !recLoading ? "pointer" : "not-allowed",
-                            opacity: !recLoading ? 1 : 0.6,
-                            whiteSpace: "nowrap",
-                            height: 42,
+                            setErr(null); setData(null);
+                            setTimings(null); setTimingFrom("none");
                         }}
                     >
                         Recommend vs Enemy
-                    </button>
-                </div>
-            </div>
+                    </Button>
+                </Col>
+            </Row>
 
-            {/* Enemy search appears ONLY in Recommend view */}
+            {/* enemy picker */}
             {view === "recommend" && (
-                <div style={{ width: "100%", maxWidth: 900 }}>
-                    <HeroSearch
-                        value={enemyInput}
-                        onChange={(v) => setEnemyInput(v)}
-                        onSelect={(slug) => setEnemySlug(slug)}
-                        placeholder="Pick enemy hero (e.g., Zeus, Phantom Assassin)…"
-                    />
-                    {!enemySlug && (
-                        <div style={{ color: "#9ca3af", marginTop: 8 }}>
-                            Select the enemy hero to see recommendations.
-                        </div>
-                    )}
-                </div>
+                <Row className="g-3 justify-content-center mb-3">
+                    <Col xs={12} md={6} lg={5}>
+                        <HeroSearch
+                            value={enemyInput}
+                            onChange={(v) => setEnemyInput(v)}
+                            onSelect={(slug) => setEnemySlug(slug)}
+                            placeholder="Pick enemy hero (e.g., Zeus, Phantom Assassin)…"
+                        />
+                        {!enemySlug && (
+                            <div className="mt-2" style={{ color: "#9ca3af" }}>
+                                Select the enemy hero to see recommendations.
+                            </div>
+                        )}
+                    </Col>
+                </Row>
+            )}
+
+            {/* errors */}
+            {view === "popularity" && err && (
+                <Row className="justify-content-center">
+                    <Col xs={12} md={8} lg={6}>
+                        <ErrorBanner title={err.title} message={err.message} hint={err.hint} action={runPopularity} />
+                    </Col>
+                </Row>
+            )}
+            {view === "recommend" && recErr && (
+                <Row className="justify-content-center">
+                    <Col xs={12} md={8} lg={6}>
+                        <ErrorBanner title={recErr.title} message={recErr.message} hint={recErr.hint} />
+                    </Col>
+                </Row>
             )}
 
             {/* POPULARITY VIEW */}
-            {view === "popularity" && (
+            {view === "popularity" && !err && (
                 <>
-                    {err && (
-                        <div style={{ width: "100%", display: "flex", justifyContent: "center" }}>
-                            <ErrorBanner title={err.title} message={err.message} hint={err.hint} action={runPopularity} />
-                        </div>
+                    {data && iconsReady && (
+                        <Row className="justify-content-center">
+                            <Col xs={12} lg={10}>
+                                <Card bg="dark" text="light" className="mb-3" style={{ background: "transparent" }}>
+                                    <Card.Body style={{ padding: isMobile ? 0 : 0, overflowX: isMobile ? "auto" : "visible" }}>
+                                        {timings && (
+                                            <TimedTimeline
+                                                title={timingFrom === "explorer" ? "Median Item Timings (public matches)" : "Estimated Timings (phase-based)"}
+                                                data={timings}
+                                                getIconUrl={getItemIcon}
+                                                phaseOf={data ? buildPhaseLookup(data) : undefined}
+                                                highlightPhases={["start","early", "mid","late"]}
+                                                highlightTopK={8}
+                                                pxPerMinute={isMobile ? 42 : 55}
+                                                autoFit={!isMobile}
+                                                rightPadPx={isMobile ? 96 : 160}
+                                                onSelectItem={(phase, name) => addSelected(phase, name)}
+                                                isSelected={(phase, name) => isChosen(phase, name)}
+                                            />
+                                        )}
+                                        {!timings && timingLoading && (
+                                            <div className="text-center py-3" style={{ color: "#9ca3af" }}>Loading timings…</div>
+                                        )}
+                                    </Card.Body>
+                                </Card>
+                            </Col>
+                        </Row>
                     )}
 
-                    {!err && !loading && data && iconsReady && (
-                        <div style={{ width: "100%", display: "grid", gap: 24 }}>
-                            {timings && (
-                                <TimedTimeline
-                                    title={timingFrom === "explorer" ? "Median Item Timings (public matches)" : "Estimated Timings (phase-based)"}
-                                    data={timings}
+                    {/* selected build */}
+                    {iconsReady && (
+                        <Row className="justify-content-center">
+                            <Col xs={12} lg={10}>
+                                <SelectedBuildPanel
+                                    selected={selected}
                                     getIconUrl={getItemIcon}
-                                    phaseOf={data ? buildPhaseLookup(data) : undefined}
-                                    highlightPhases={["start","early", "mid","late"]}
-                                    highlightTopK={8}
-                                    pxPerMinute={55}
-                                    autoFit={true}
-                                    onSelectItem={(phase, name) => addSelected(phase, name)}
-                                    isSelected={(phase, name) => isChosen(phase, name)}
+                                    onRemove={removeSelected}
+                                    timings={timings ?? {}}
+                                    sortByMinuteAsc={true}
                                 />
-                            )}
-
-                            <SelectedBuildPanel
-                                selected={selected}
-                                getIconUrl={getItemIcon}
-                                onRemove={removeSelected}
-                                timings={timings ?? {}}        // ← gives the panel the minutes
-                                sortByMinuteAsc={true}         // ← earliest first (matches your example)
-                            />
-
-
-                            {!timings && timingLoading && (
-                                <div style={{ color: "#9ca3af" }}>Loading timings…</div>
-                            )}
-                        </div>
+                            </Col>
+                        </Row>
                     )}
 
-                    {!iconsReady && !err && (
-                        <div style={{ color: "#9ca3af", textAlign: "center" }}>Loading icons…</div>
+                    {!iconsReady && (
+                        <Row className="justify-content-center">
+                            <Col xs="auto" className="text-center" style={{ color: "#9ca3af" }}>
+                                Loading icons…
+                            </Col>
+                        </Row>
                     )}
                     {loading && (
-                        <div style={{ color: "#9ca3af", textAlign: "center" }}>Fetching item popularity…</div>
+                        <Row className="justify-content-center">
+                            <Col xs="auto" className="text-center" style={{ color: "#9ca3af" }}>
+                                Fetching item popularity…
+                            </Col>
+                        </Row>
                     )}
                 </>
             )}
 
             {/* RECOMMEND VIEW */}
-            {view === "recommend" && (
+            {view === "recommend" && !recErr && enemySlug && (
                 <>
-                    {recErr && (
-                        <div style={{ width: "100%", display: "flex", justifyContent: "center" }}>
-                            <ErrorBanner title={recErr.title} message={recErr.message} hint={recErr.hint} />
-                        </div>
+                    {recLoading && (
+                        <Row className="justify-content-center">
+                            <Col xs="auto" className="text-center" style={{ color: "#9ca3af" }}>
+                                Computing recommendations…
+                            </Col>
+                        </Row>
                     )}
 
-                    {!recErr && enemySlug && !recLoading && Object.keys(recAll).length > 0 && (
-                        <div
-                            style={{
-                                width: "100%",
-                                maxWidth: 1400,
-                                display: "grid",
-                                gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
-                                justifyContent: "center",
-                                justifyItems: "center",
-                                gap: 24,
-                                marginTop: 16,
-                            }}
-                        >
+                    {!recLoading && Object.keys(recAll).length > 0 && (
+                        <Row className="g-3 justify-content-center">
                             {PHASES.map((p) => {
                                 const d = recAll[p];
                                 if (!d) return null;
-                                const title = `${p[0].toUpperCase() + p.slice(1)} game items against — ${enemyInput || d.enemy}`;
                                 return (
-                                    <RecommendedItems
-                                        key={p}
-                                        title={title}
-                                        items={d.recommendations}
-                                        getIconUrl={getItemIcon}
-                                    />
+                                    <Col key={p} xs={12} md={6} lg={4}>
+                                        <RecommendedItems
+                                            title={`${p[0].toUpperCase() + p.slice(1)} game items — ${enemyInput || d.enemy}`}
+                                            items={d.recommendations}
+                                            getIconUrl={getItemIcon}
+                                        />
+                                    </Col>
                                 );
                             })}
-                        </div>
-                    )}
-
-                    {enemySlug && recLoading && (
-                        <div style={{ color: "#9ca3af", textAlign: "center" }}>
-                            Computing recommendations…
-                        </div>
+                        </Row>
                     )}
                 </>
             )}
-        </div>
+        </Container>
     );
 }

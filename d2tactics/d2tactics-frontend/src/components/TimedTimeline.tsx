@@ -14,10 +14,7 @@ type Props = {
     highlightTopK?: number;
     highlightTopPct?: number;
 
-    /** Color for “best in phase” ring/glow (kept from before) */
     topPhaseColor?: string;
-
-    /** NEW: colors and labels for phase top ranks (1,2,3) */
     phaseTopColors?: { 1: string; 2: string; 3: string };
     phaseTopLabels?: { 1: string; 2: string; 3: string };
 
@@ -52,7 +49,7 @@ export default function TimedTimeline({
                                           highlightTopK = 8,
                                           highlightTopPct = 0.25,
                                           topPhaseColor = "#22c55e",
-                                          phaseTopColors = { 1: "#22c55e", 2: "#c0c0c0", 3: "#cd7f32" }, // gold, silver, bronze
+                                          phaseTopColors = { 1: "#22c55e", 2: "#c0c0c0", 3: "#cd7f32" },
                                           phaseTopLabels = { 1: "TOP", 2: "#2", 3: "#3" },
                                           pxPerMinute = 55,
                                           autoFit = true,
@@ -82,7 +79,6 @@ export default function TimedTimeline({
         return [Math.min(...u), Math.max(...u)] as const;
     }, [rows]);
 
-    /** Highest by uses overall (unchanged) */
     const globalTop = useMemo(() => {
         if (!rows.length) return new Set<string>();
         const sorted = [...rows].sort((a, b) => b.uses - a.uses);
@@ -96,9 +92,6 @@ export default function TimedTimeline({
         return new Set(pick.map(x => x.name));
     }, [rows, highlightTopK, highlightTopPct]);
 
-    /**
-     * NEW: per-phase top rankings → name -> rank (1..3). We only keep top 3.
-     */
     const phaseTopRank = useMemo(() => {
         const rank = new Map<string, 1 | 2 | 3>();
         if (!phaseOf) return rank;
@@ -119,11 +112,11 @@ export default function TimedTimeline({
     const { ref: outerRef, width: outerWidth } = useContainerWidth<HTMLDivElement>();
 
     const axisTop = 34;
-    const laneHeight = 5;
-    const laneGap = 20;
+    const laneHeight = 10;
+    const laneGap = 10;
     const cardW = 300;
     const minGapPx = 96;
-    const sidePad = 18;
+    const sidePad = 28;
 
     const naturalInnerWidth = sidePad + maxMin * pxPerMinute + rightPadPx + sidePad;
 
@@ -193,7 +186,7 @@ export default function TimedTimeline({
     }, [maxMin]);
 
     return (
-        <section style={{ width: "100%", maxWidth: 1280, marginInline: "auto" }}>
+        <section style={{ width: "100%", maxWidth: 1500, marginInline: "auto" }}>
             <h2 style={{ margin: "12px 0", fontSize: 20 }}>{title}</h2>
 
             <div
@@ -206,7 +199,7 @@ export default function TimedTimeline({
                     boxShadow: "0 14px 36px rgba(0,0,0,0.45)",
                     padding: 0,
                     minHeight: 220,
-                    overflow: "hidden",
+                    overflow: autoFit ? "hidden" : "auto", // mobile horizontal scroll if autoFit=false
                 }}
             >
                 <div
@@ -267,13 +260,8 @@ export default function TimedTimeline({
                         const iconUrl = getIconUrl(p.name);
                         const top = axisTop + 12 + p.lane * (50 + 10);
 
-                        // Base border intensity by uses
                         const intensity = 0.35 + 0.65 * p.normUses;
 
-                        // Choose ring color:
-                        // 1) phase top-3 ring wins (1>2>3),
-                        // 2) otherwise blend blue by uses,
-                        // 3) selected adds a gold ring overlay.
                         const phaseRankColor =
                             p.phaseRank ? phaseTopColors[p.phaseRank] : undefined;
 
@@ -319,7 +307,7 @@ export default function TimedTimeline({
                                     cursor,
                                 }}
                             >
-                                {badgeLabel && (
+                                {badgeLabel && p.phaseRank && p.phaseRank <= 3 && (
                                     <div
                                         style={{
                                             position: "absolute",
@@ -375,7 +363,7 @@ export default function TimedTimeline({
     );
 }
 
-/* ------------------------------ utils ----------------------------- */
+/* utils */
 function normalize(v: number, vmin: number, vmax: number) {
     if (vmax <= vmin) return 0;
     return (v - vmin) / (vmax - vmin);
@@ -405,8 +393,6 @@ function prettyPhase(p?: Phase) {
     if (p === "start") return "Start";
     return p[0].toUpperCase() + p.slice(1);
 }
-
-/** Simple contrast heuristic for badge text */
 function readableText(bg: string) {
     const rgb = bg.startsWith("#") ? hexToRgb(bg) : null;
     const r = rgb ? rgb.r : 50, g = rgb ? rgb.g : 186, b = rgb ? rgb.b : 120;
