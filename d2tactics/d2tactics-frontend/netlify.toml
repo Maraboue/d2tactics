@@ -4,7 +4,11 @@ command = "npm run build"
 publish = "dist"
 
 [[redirects]]
-from = "/api/*"
-to = "https://d2tactics.onrender.com/:splat"
+from = "/opendota/*"
+to = "https://d2tactics.onrender.com/opendota/:splat"
 status = 200
 
+[[redirects]]
+from = "/*"
+to = "/index.html"
+status = 200
