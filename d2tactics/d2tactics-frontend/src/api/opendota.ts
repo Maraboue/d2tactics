@@ -3,7 +3,7 @@ export type PhaseKey = "start_game_items" | "early_game_items" | "mid_game_items
 export type PopularityMap = Record<string, number>;
 export type ItemPopularityResponse = Record<PhaseKey, PopularityMap>;
 
-const BASE = import.meta.env.VITE_API_BASE ?? "http://localhost:8080";
+const BASE = import.meta.env.VITE_API_BASE ?? "/api";
 
 export async function fetchItemPopularity(
     hero: string,
